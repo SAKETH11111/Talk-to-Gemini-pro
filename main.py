@@ -4,11 +4,9 @@ from gtts import gTTS
 from pydub import AudioSegment
 from pydub.playback import play
 
-# Configure Gemini Pro API
-genai.configure(api_key='AIzaSyCVMlxEccD1EE24gGWzProG7eNtS_-yMAI')
-model = genai.GenerativeModel('gemini-pro')
-chat = model.start_chat(history=[])
-displayed_messages = set()
+# Configure PaLM API
+palm.configure(api_key="Your API") 
+model = "models/chat-bison-001"
 
 class SpeechChatBot:
     def __init__(self):
