@@ -1,21 +1,24 @@
 import speech_recognition as sr
-import google.generativeai as palm
+import google.generativeai as genai
 from gtts import gTTS
-from playsound import playsound
+from pydub import AudioSegment
+from pydub.playback import play
 
-# Configure PaLM API
-palm.configure(api_key="AIzaSyCVMlxEccD1EE24gGWzProG7eNtS_-yMAI") 
-model = "models/chat-bison-001"
+# Configure Gemini Pro API
+genai.configure(api_key='AIzaSyCVMlxEccD1EE24gGWzProG7eNtS_-yMAI')
+model = genai.GenerativeModel('gemini-pro')
+chat = model.start_chat(history=[])
+displayed_messages = set()
 
 class SpeechChatBot:
     def __init__(self):
-        self.conversation = []
-        
+        self.recognizer = sr.Recognizer()
+
     def listen_and_recognize(self):
         with sr.Microphone() as source:
             print("Listening...")
             audio = self.recognizer.listen(source)
-            
+
         try:
             text = self.recognizer.recognize_google(audio)
             print("You said:", text)
@@ -28,38 +31,27 @@ class SpeechChatBot:
             return None
 
     def chat(self, user_message):
-        # Add user message to conversation history
-        self.conversation.append({"author": "user", "content": user_message})
-        
-        # Generate response
-        response = palm.chat(
-            model=model,
-            messages=self.conversation,
-            candidate_count=3
-        ).candidates
-        
-        # Check if candidates exist before accessing the first one
-        if response and response[0]["content"]:
-            # Pick the first candidate response
-            bot_message = response[0]["content"]
-            
-            # Add bot message to conversation history
-            self.conversation.append({"author": "bot", "content": bot_message})
-            
+        response = chat.send_message(user_message)
+
+        # Check if response exists before accessing the first part
+        if response.parts and response.parts[0].text:
+            # Pick the first part of the response
+            bot_message = response.parts[0].text
+
             print("Bot:", bot_message)
             # Speak the bot's response
             self.speak(bot_message)
         else:
-            print("PaLM did not provide any candidates or content.")
+            print("Gemini Pro did not provide any response or content.")
 
     def speak(self, words_to_be_spoken):
         tts = gTTS(text=words_to_be_spoken)
         tts.save('response.mp3')
-        playsound('response.mp3')
+
+        sound = AudioSegment.from_mp3('response.mp3')
+        play(sound)
 
     def run(self):
-        self.recognizer = sr.Recognizer()
-
         while True:
             user_input = self.listen_and_recognize()
 

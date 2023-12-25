@@ -1,0 +1,4 @@
+SpeechRecognition
+google-generativeai
+gtts
+pydub
