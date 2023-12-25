@@ -4,7 +4,7 @@ from gtts import gTTS
 from playsound import playsound
 
 # Configure PaLM API
-palm.configure(api_key="AIzaSyCVMlxEccD1EE24gGWzProG7eNtS_-yMAI") 
+palm.configure(api_key="Your API") 
 model = "models/chat-bison-001"
 
 class SpeechChatBot:
